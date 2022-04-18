@@ -1,6 +1,6 @@
 export class Modal {
-  constructor(contentId) {
-    // this.fallbackText = fallbackText;
+  constructor(contentId, fallbackText) {
+    this.fallbackText = fallbackText;
     this.contentTemplateElement = document.getElementById(contentId);
     this.modalTemplateElement = document.getElementById('modal-template');
   }
@@ -22,7 +22,7 @@ export class Modal {
       this.modalElement.appendChild(contentElement);
 
       document.body.insertAdjacentElement('afterbegin', this.modalElement);
-      document.body.insertAdjacentElement('afterbegin', backdropElement);
+      document.body.insertAdjacentElement('afterbegin', this.backdropElement);
     } else {
       alert('this.fallbackText');
     }

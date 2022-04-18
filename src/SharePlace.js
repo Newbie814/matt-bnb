@@ -1,22 +1,31 @@
 import { Modal } from './Modal';
+import { Map } from './Map';
 
-function addGoogleScript() {
-  const googleMapsScript = document.createElement('script');
-  googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}`;
-  // process.env.GOOGLE_MAPS_API_KEY is the variable set in webpac k.config.js
-  googleMapsScript.defer = true;
+// function addGoogleScript() {
+//   const googleMapsScript = document.createElement('script');
+//   googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}`;
+//   // process.env.GOOGLE_MAPS_API_KEY is the variable set in webpac k.config.js
+//   googleMapsScript.defer = true;
 
-  document.head.appendChild(googleMapsScript);
-}
+//   document.head.appendChild(googleMapsScript);
+// }
 
 class PlaceFinder {
   constructor() {
-    addGoogleScript();
+    // addGoogleScript();
     const addressForm = document.querySelector('form');
     const locateUserBtn = document.getElementById('locate-btn');
 
-    locateUserBtn.addEventListener('click', this.locateUserHandler);
-    addressForm.addEventListener('submit', this.findAddressHandler);
+    locateUserBtn.addEventListener('click', this.locateUserHandler.bind(this));
+    addressForm.addEventListener('submit', this.findAddressHandler.bind(this));
+  }
+
+  selectPlace(coordinates) {
+    if (this.map) {
+      this.map.render(coordinates);
+    } else {
+      this.map = new Map(coordinates);
+    }
   }
 
   locateUserHandler() {
@@ -36,7 +45,7 @@ class PlaceFinder {
           lat: successResult.coords.latitude,
           lng: successResult.coords.longitude,
         };
-        console.log(coordinates);
+        this.selectPlace(coordinates);
       },
       (error) => {
         modal.hide();
