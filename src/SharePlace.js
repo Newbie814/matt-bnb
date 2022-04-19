@@ -1,5 +1,9 @@
 import { Modal } from './Modal';
 import { Map } from './Map';
+import {
+  getCoordsFromAddress,
+  getAddressFromCoords,
+} from '../Utility/Location';
 
 // function addGoogleScript() {
 //   const googleMapsScript = document.createElement('script');
@@ -15,17 +19,26 @@ class PlaceFinder {
     // addGoogleScript();
     const addressForm = document.querySelector('form');
     const locateUserBtn = document.getElementById('locate-btn');
+    this.shareBtn = document.getElementById('share-btn');
 
     locateUserBtn.addEventListener('click', this.locateUserHandler.bind(this));
+    // this.shareBtn.addEventListener('click', this.findAddressHandler.bind(this));
     addressForm.addEventListener('submit', this.findAddressHandler.bind(this));
   }
 
-  selectPlace(coordinates) {
+  selectPlace(coordinates, address) {
     if (this.map) {
       this.map.render(coordinates);
     } else {
       this.map = new Map(coordinates);
     }
+    this.shareBtn.disabled = false;
+    const shareLinkInputElement = document.getElementById('share-link');
+    shareLinkInputElement.value = `${
+      location.origin
+    }/my-place?address=${encodeURI(address)}&lat=${coordinates.lat}&lng=${
+      coordinates.lng
+    }`;
   }
 
   locateUserHandler() {
@@ -39,13 +52,14 @@ class PlaceFinder {
     );
     modal.show();
     navigator.geolocation.getCurrentPosition(
-      (successResult) => {
-        modal.hide();
+      async (successResult) => {
         const coordinates = {
           lat: successResult.coords.latitude,
           lng: successResult.coords.longitude,
         };
-        this.selectPlace(coordinates);
+        const address = await getAddressFromCoords(coordinates);
+        modal.hide();
+        this.selectPlace(coordinates, address);
       },
       (error) => {
         modal.hide();
@@ -54,7 +68,24 @@ class PlaceFinder {
     );
   }
 
-  findAddressHandler() {}
+  async findAddressHandler(event) {
+    event.preventDefault();
+    const address = event.target.querySelector('input').value;
+    if (!address || address.trim() === '') {
+      alert('Please enter an address.');
+      return;
+    }
+    const modal = new Modal('loading-modal-content', 'Fetching location...');
+    modal.show();
+    try {
+      const coordinates = await getCoordsFromAddress(address);
+      this.selectPlace(coordinates, address);
+    } catch (err) {
+      modal.hide();
+      alert(err.message);
+    }
+    modal.hide();
+  }
 }
 
-new PlaceFinder();
+const placeFinder = new PlaceFinder();
