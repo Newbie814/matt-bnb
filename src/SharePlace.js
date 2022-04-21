@@ -32,13 +32,26 @@ class PlaceFinder {
     } else {
       this.map = new Map(coordinates);
     }
-    this.shareBtn.disabled = false;
-    const shareLinkInputElement = document.getElementById('share-link');
-    shareLinkInputElement.value = `${
-      location.origin
-    }/my-place?address=${encodeURI(address)}&lat=${coordinates.lat}&lng=${
-      coordinates.lng
-    }`;
+    fetch('http://localhost:3000/add-location', {
+      method: 'POST',
+      body: JSON.stringify({
+        address: address,
+        lat: coordinates.lat,
+        lng: coordinates.lng,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        const locationId = data.locId;
+        this.shareBtn.disabled = false;
+        const sharedLinkInputElement = document.getElementById('share-link');
+        sharedLinkInputElement.value = `${location.origin}/my-place?location=${locationId}`;
+      });
   }
 
   locateUserHandler() {

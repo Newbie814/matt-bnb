@@ -1,6 +1,6 @@
-import { async } from 'regenerator-runtime';
+require('dotenv').config();
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyBxtimtjtAZZIGU1OaCnw3K5--1wZRFgyk';
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 export async function getCoordsFromAddress(address) {
   const urlAddress = encodeURI(address);

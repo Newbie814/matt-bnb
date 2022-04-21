@@ -12,6 +12,9 @@ const envKeys = Object.keys(env).reduce((prev, next) => {
 
 module.exports = {
   mode: 'development',
+  node: {
+    fs: 'empty',
+  },
   entry: {
     SharePlace: './src/SharePlace.js',
     MyPlace: './src/MyPlace.js',
